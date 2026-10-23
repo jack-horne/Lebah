@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Koloni Lebah Madu: Proyek Multimedia</title>
+<style>
+:root{--bg:#e8f1d4;--ink:#2b2110;--honey:#f2a900;--panel:#fffaf0;--line:#d9c9a0;--leaf:#5a8a3c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d2614;--ink:#f5ead0;--panel:#2a2f1c;--line:#4a4a2a;--leaf:#8fbf6a}}
+:root[data-theme="dark"]{--bg:#1d2614;--ink:#f5ead0;--panel:#2a2f1c;--line:#4a4a2a;--leaf:#8fbf6a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Trebuchet MS","Segoe UI",sans-serif;line-height:1.5}
+main{max-width:900px;margin:0 auto;padding:20px 16px 40px}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(1.8rem,6vw,2.8rem);margin:0 0 4px}
+p.sub{margin:0 0 18px;max-width:62ch}
+.stage{background:linear-gradient(#bfe3f5,#e8f6d8 70%,#7fae55 70%);border-radius:18px;border:2px solid var(--line);overflow:hidden;aspect-ratio:16/10}
+:root[data-theme="dark"] .stage{background:linear-gradient(#24385a,#2f4a2b 70%,#3d6b2a 70%)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .stage{background:linear-gradient(#24385a,#2f4a2b 70%,#3d6b2a 70%)}}
+.stage svg{width:100%;height:100%;display:block}
+.controls{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0;align-items:center}
+button{font:inherit;font-weight:700;padding:10px 16px;border-radius:999px;border:2px solid var(--ink);background:var(--honey);color:#2b2110;cursor:pointer}
+button[aria-pressed="true"]{background:var(--ink);color:var(--honey)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--leaf);outline-offset:2px}
+label{display:flex;align-items:center;gap:8px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:12px}
+.panel h2{font-size:1.05rem;margin:0 0 4px}
+.panel p{margin:0}
+.wing{transform-box:fill-box;transform-origin:50% 100%;animation:flap .06s ease-in-out infinite alternate}
+.wing.r{animation-direction:alternate-reverse}
+@keyframes flap{from{transform:rotate(-28deg) scaleY(.85)}to{transform:rotate(18deg) scaleY(1)}}
+.paused .wing{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){.wing{animation-duration:.4s}}
+</style>
+</head>
+<body>
+<main>
+<h1>Koloni Lebah Madu</h1>
+<p class="sub">Proyek multimedia: gambar, suara, dan gerak. Atur jumlah lebah, pilih perilaku koloni, lalu nyalakan suara.</p>
+
+<div class="stage" id="stage">
+<svg id="scene" viewBox="0 0 800 500" role="img" aria-label="Koloni lebah terbang di antara bunga dan sarang">
+  <circle cx="690" cy="70" r="38" fill="#ffd54a"/>
+  <g>
+    <rect x="148" y="320" width="8" height="140" fill="#3f7a2c"/>
+    <g fill="#f78fb3"><circle cx="152" cy="285" r="26"/><circle cx="152" cy="355" r="26"/><circle cx="117" cy="320" r="26"/><circle cx="187" cy="320" r="26"/><circle cx="127" cy="295" r="26"/><circle cx="177" cy="295" r="26"/><circle cx="127" cy="345" r="26"/><circle cx="177" cy="345" r="26"/></g>
+    <circle cx="152" cy="320" r="20" fill="#f2a900"/>
+  </g>
+  <g>
+    <rect x="620" y="300" width="110" height="160" rx="10" fill="#c97d10"/>
+    <rect x="620" y="300" width="110" height="26" rx="10" fill="#a8650a"/>
+    <rect x="620" y="360" width="110" height="6" fill="#a8650a"/><rect x="620" y="410" width="110" height="6" fill="#a8650a"/>
+    <ellipse cx="675" cy="340" rx="22" ry="14" fill="#3a2508"/>
+  </g>
+  <g id="colony"></g>
+</svg>
+</div>
+
+<div class="controls">
+  <button id="btnSound" aria-pressed="false">Suara: mati</button>
+  <button id="mFly" aria-pressed="true">Menjelajah</button>
+  <button id="mDance" aria-pressed="false">Waggle dance</button>
+  <button id="mHive" aria-pressed="false">Di sarang</button>
+  <button id="btnPause" aria-pressed="false">Jeda</button>
+</div>
+<div class="controls">
+  <label>Jumlah lebah <input id="cnt" type="range" min="6" max="36" value="18"> <output id="cntOut">18</output></label>
+  <label>Volume <input id="vol" type="range" min="0" max="100" value="45"></label>
+</div>
+
+<div class="panel"><h2>1. Gambar (visual)</h2><p>Setiap lebah digambar dengan SVG: tubuh kuning bergaris hitam, dua pasang sayap, mata, antena, dan sengat. Ukuran tiap lebah berbeda agar koloni terlihat berlapis (dekat dan jauh).</p></div>
+<div class="panel"><h2>2. Suara (audio)</h2><p>Dengung dibuat dari 8 suara lebah yang berbeda nada (sekitar 190-260 Hz). Tiap suara kaya harmonik, bergetar acak, bergeser kiri-kanan mengikuti posisi lebah, dan berubah nada karena efek Doppler. Ditambah desis sayap dan gema udara terbuka.</p></div>
+<div class="panel"><h2>3. Gerak (animasi)</h2><p>Sayap mengepak cepat dengan kecepatan berbeda tiap lebah. Ada tiga perilaku: menjelajah (pencari nektar berputar di bunga, yang lain bolak-balik ke sarang), waggle dance (satu penari bergerak angka delapan, lainnya mengelilingi), dan berkerumun di sarang.</p></div>
+</main>
+
+<script>
+(function(){
+var NS='http://www.w3.org/2000/svg', layer=document.getElementById('colony'), stage=document.getElementById('stage');
+var BEE='<g class="wing" style="animation-duration:DURs;animation-delay:DLYs"><ellipse cx="-18" cy="-42" rx="16" ry="38" fill="#dff3ff" stroke="#8cb8d6" stroke-width="2" opacity=".85" transform="rotate(-20 -18 -42)"/></g><g class="wing r" style="animation-duration:DURs;animation-delay:DLYs"><ellipse cx="14" cy="-44" rx="16" ry="38" fill="#dff3ff" stroke="#8cb8d6" stroke-width="2" opacity=".85" transform="rotate(20 14 -44)"/></g><path d="M52 8 L74 0 L52 -6Z" fill="#2b2110"/><ellipse cx="0" cy="0" rx="52" ry="34" fill="#f2a900" stroke="#2b2110" stroke-width="4"/><path d="M-14 -31 Q-22 0 -14 31 L-4 32 Q-12 0 -4 -33Z" fill="#2b2110"/><path d="M12 -32 Q4 0 12 32 L24 29 Q16 0 24 -29Z" fill="#2b2110"/><circle cx="-52" cy="-6" r="22" fill="#2b2110"/><circle cx="-58" cy="-12" r="8" fill="#fff"/><circle cx="-60" cy="-12" r="3.5" fill="#2b2110"/><path d="M-62 -26 Q-74 -50 -88 -48" stroke="#2b2110" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M-50 -28 Q-52 -52 -66 -58" stroke="#2b2110" stroke-width="3" fill="none" stroke-linecap="round"/><g stroke="#2b2110" stroke-width="3" stroke-linecap="round"><path d="M-20 30 l-6 16"/><path d="M0 33 l0 18"/><path d="M20 30 l6 16"/></g>';
+var bees=[], mode='fly', paused=false, t=0, last=performance.now();
+function R(a,b){return a+Math.random()*(b-a)}
+function build(n){
+  layer.textContent=''; bees=[];
+  for(var i=0;i<n;i++){
+    var s0=R(.28,.55), g=document.createElementNS(NS,'g');
+    var dur=R(.05,.08).toFixed(3);
+    g.innerHTML=BEE.replace(/DUR/g,dur).replace(/DLY/g,(-R(0,.1)).toFixed(3));
+    bees.push({el:g,x:R(100,700),y:R(120,320),s0:s0,s:s0,ph:R(0,6.28),w:R(.6,1.3),r:R(0,60),y0:R(150,300),type:i%3===0?0:1,vx:0,vy:0,flip:1,jit:0});
+  }
+  bees.slice().sort(function(a,b){return a.s0-b.s0}).forEach(function(b){layer.appendChild(b.el)});
+}
+function target(b,i){
+  var a;
+  if(mode==='dance'){
+    if(i===0){a=t*1.2;return [400+Math.sin(a)*110,250+Math.sin(2*a)*45+Math.sin(t*30)*3];}
+    a=t*b.w*.5+b.ph;return [400+Math.cos(a)*(170+b.r*.8),250+Math.sin(a)*(95+b.r*.3)];
+  }
+  if(mode==='hive'){a=t*b.w*1.4+b.ph;var rr=40+b.r;return [675+Math.cos(a)*rr*1.2,330+Math.sin(a*1.1)*rr*.8];}
+  if(b.type===0){a=t*b.w*1.6+b.ph;return [152+Math.cos(a)*(50+b.r*.5),300+Math.sin(a)*45];}
+  var s=(Math.sin(t*b.w*.7+b.ph)+1)/2;
+  return [170+s*480+Math.sin(t*1.9+b.ph)*20,b.y0-Math.sin(s*Math.PI)*50+Math.sin(t*2.4+b.ph*2)*25];
+}
+function frame(now){
+  var dt=Math.min(.05,(now-last)/1000); last=now;
+  if(!paused&&dt>0){
+    t+=dt;
+    for(var i=0;i<bees.length;i++){
+      var b=bees[i], tg=target(b,i), k=Math.min(1,dt*3), px=b.x, py=b.y;
+      b.x+=(tg[0]-b.x)*k; b.y+=(tg[1]-b.y)*k;
+      var st=(mode==='dance'&&i===0)?.85:b.s0; b.s+=(st-b.s)*Math.min(1,dt*4);
+      b.vx+=((b.x-px)/dt-b.vx)*.2; b.vy+=((b.y-py)/dt-b.vy)*.2;
+      if(Math.abs(b.vx)>8) b.flip=b.vx>0?-1:1;
+      var rot=-Math.max(-15,Math.min(15,b.vy*.05));
+      b.el.setAttribute('transform','translate('+b.x.toFixed(1)+','+b.y.toFixed(1)+') scale('+(b.flip*b.s).toFixed(3)+','+b.s.toFixed(3)+') rotate('+rot.toFixed(1)+')');
+    }
+    audioUpdate(dt);
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ---------- AUDIO ---------- */
+var ctx=null, master, voices=[], soundOn=false, NV=8;
+function impulse(sec){
+  var n=ctx.sampleRate*sec, buf=ctx.createBuffer(2,n,ctx.sampleRate);
+  for(var c=0;c<2;c++){var d=buf.getChannelData(c);for(var i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3);}
+  return buf;
+}
+function startAudio(){
+  if(!ctx){
+    var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return false;
+    ctx=new AC();
+    master=ctx.createGain(); master.gain.value=0;
+    var comp=ctx.createDynamicsCompressor(), lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=3200;
+    var bus=ctx.createGain(), dry=ctx.createGain(), wet=ctx.createGain(), conv=ctx.createConvolver();
+    dry.gain.value=.8; wet.gain.value=.3; conv.buffer=impulse(1.2);
+    bus.connect(lp); lp.connect(dry); lp.connect(conv); conv.connect(wet);
+    dry.connect(comp); wet.connect(comp); comp.connect(master); master.connect(ctx.destination);
+    var re=new Float32Array(25), im=new Float32Array(25);
+    for(var h=1;h<25;h++){im[h]=1/Math.pow(h,1.1)*(h===2?1.3:1);}
+    var wave=ctx.createPeriodicWave(re,im);
+    for(var j=0;j<NV;j++){
+      var o=ctx.createOscillator(); o.setPeriodicWave(wave);
+      var base=R(190,260); o.frequency.value=base;
+      var am=ctx.createGain(), lf=ctx.createOscillator(), lg=ctx.createGain();
+      lf.frequency.value=R(3,9); lg.gain.value=.14; lf.connect(lg); lg.connect(am.gain);
+      var g=ctx.createGain(), p=ctx.createStereoPanner();
+      g.gain.value=0; o.connect(am); am.connect(g); g.connect(p); p.connect(bus);
+      o.start(); lf.start();
+      voices.push({o:o,g:g,p:p,base:base,jit:0});
+    }
+    var nb=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate), nd=nb.getChannelData(0);
+    for(var i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
+    var ns=ctx.createBufferSource(); ns.buffer=nb; ns.loop=true;
+    var bp=ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=900; bp.Q.value=.7;
+    var ng=ctx.createGain(); ng.gain.value=.05; ns.connect(bp); bp.connect(ng); ng.connect(bus); ns.start();
+  }
+  if(ctx.resume) ctx.resume();
+  return true;
+}
+function setVol(){ if(ctx) master.gain.setTargetAtTime(soundOn&&!paused?document.getElementById('vol').value/100*.8:0,ctx.currentTime,.08); }
+function audioUpdate(dt){
+  if(!ctx||!soundOn) return;
+  var now=ctx.currentTime;
+  for(var j=0;j<NV&&j<bees.length;j++){
+    var v=voices[j], b=bees[j];
+    v.jit=v.jit*.97+(Math.random()-.5)*.8;
+    var dop=Math.max(-.03,Math.min(.03,b.vx/6000));
+    v.o.frequency.setTargetAtTime(v.base*(1+dop)+v.jit*2,now,.05);
+    v.p.pan.setTargetAtTime(Math.max(-1,Math.min(1,(b.x-400)/380)),now,.08);
+    var loud=.09*(b.s/.45)*(mode==='dance'&&j===0?1.7:1);
+    v.g.gain.setTargetAtTime(loud*(.6+.4*Math.min(1,Math.hypot(b.vx,b.vy)/150+.4)),now,.1);
+  }
+}
+
+/* ---------- KONTROL ---------- */
+var bS=document.getElementById('btnSound'),bP=document.getElementById('btnPause'),M={fly:'mFly',dance:'mDance',hive:'mHive'};
+bS.onclick=function(){
+  if(!soundOn&&!startAudio()){bS.textContent='Audio tidak didukung';return;}
+  soundOn=!soundOn; bS.setAttribute('aria-pressed',soundOn); bS.textContent='Suara: '+(soundOn?'nyala':'mati'); setVol();
+  if(!soundOn&&ctx) voices.forEach(function(v){v.g.gain.setTargetAtTime(0,ctx.currentTime,.05)});
+};
+document.getElementById('vol').oninput=setVol;
+Object.keys(M).forEach(function(m){document.getElementById(M[m]).onclick=function(){
+  mode=m; Object.keys(M).forEach(function(k){document.getElementById(M[k]).setAttribute('aria-pressed',k===m)});
+};});
+bP.onclick=function(){paused=!paused;bP.setAttribute('aria-pressed',paused);bP.textContent=paused?'Lanjutkan':'Jeda';stage.classList.toggle('paused',paused);setVol();};
+var cnt=document.getElementById('cnt');
+cnt.oninput=function(){document.getElementById('cntOut').textContent=cnt.value;build(+cnt.value);};
+build(+cnt.value); requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
